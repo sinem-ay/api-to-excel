@@ -1,3 +1,5 @@
+# Documentation for openpyxl: https://openpyxl.readthedocs.io/en/stable/
+
 from urllib import response
 import requests
 import openpyxl
@@ -20,8 +22,8 @@ def write_user_details():
 
     wb = openpyxl.load_workbook(filename)
     ws = wb.active
-    wc = ws['A1'] = 'id'
-
+    #wc = ws['A1'] = 'id'
+    wc = extract_user_details
     
 
     wb.save(filename)
