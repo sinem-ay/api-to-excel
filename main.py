@@ -1,7 +1,11 @@
+from asyncio.log import logger
+from cgitb import text
 import pandas as pd
 import requests
 import xlsxwriter
+from datetime import datetime
 
+start_time = datetime.now()
 # Api for London weather
 url = "https://weatherdbi.herokuapp.com/data/weather/london"
 r = requests.get(url)
@@ -21,6 +25,8 @@ print(weather)
 # Write dataframe into xlsx file
 excel_weather = weather.to_excel("excel_weather.xlsx", sheet_name="CurrentCondition", engine="xlsxwriter")
 
+end_time = datetime.now()
+print('Executed in {}'.format(end_time - start_time))
 
 
 
