@@ -1,5 +1,9 @@
-# api-to-excel
+# API to Excel
 
-API of live London's weather condition extracted by using pandas. API transformed into dataframe format, then written into excel sheet.
-Check the dependencies in requirements.txt first.
-.gitignore for env files
+What I aim with this project:
+1. Get API by using requests module
+2. Check the HTTP status
+3. Turn dictionary variables into dataframe
+4. Write the dataframe into excel .xlsx + everytime refreshed, update the excel 
+5. Logger and timer
+
