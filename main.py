@@ -1,35 +1,57 @@
-from asyncio.log import logger
-from cgitb import text
-import pandas as pd
+import json
 import requests
-import xlsxwriter
-from datetime import datetime
 
-start_time = datetime.now()
-# Api for London weather
-url = "https://weatherdbi.herokuapp.com/data/weather/london"
-r = requests.get(url)
-print(r)
-# response 200 - success
+# Get request and status check
+def get_api(url):
+    api = requests.get(url)
+    def check_status():
+        try:
+            api.raise_for_status()
+        except requests.exceptions.HTTPError as error:
+            print(error)
 
-json = r.json()
-# print(json.keys())
-# dict_keys(['region', 'currentConditions', 'next_days', 'contact_author', 'data_source'])
-print(type(json['currentConditions'])) 
-# dict, which means can be transformed into dataframe
+get_api('https://api.coindesk.com/v1/bpi/currentprice.json')
 
-weather = pd.DataFrame(json['currentConditions'])
-print(weather)
-# Current condition of weather in London in dataframe
+# Dictionary keys - Problem: Does not return anything
+"""api = requests.get(url)
+    json = api.json()
+    json.keys()"""
 
-# Write dataframe into xlsx file
-excel_weather = weather.to_excel("excel_weather.xlsx", sheet_name="CurrentCondition", engine="xlsxwriter")
+def get_json(url):
+    api = requests.get(url)
+    json = api.json()
 
-end_time = datetime.now()
-print('Executed in {}'.format(end_time - start_time))
+    def dict_keys():
+        print(json.keys())
+    return dict_keys
+
+get_json('https://api.coindesk.com/v1/bpi/currentprice.json')
+
+def my_logger(function):
+    import logging
+    logging.basicConfig(filename='{}.log'.format(function.__name__), level=logging.INFO)
+
+    def wrapper(*args, **kwargs):
+        logging.info('Ran with args:{}, and kwargs: {}'.format(args, kwargs))
+        return function(*args, **kwargs)
+
+    return wrapper()
+
+def my_timer(function):
+    import time
+
+    def wrapper(*args, **kwargs):
+        t1=time.time()
+        result=function(*args, **kwargs)
+        t2=time.time() - t1
+        print('{} ran in: {} sec'.format(function.__name__, t2))
+        return result
 
 
+@my_timer
+def get_api(url='https://api.coindesk.com/v1/bpi/currentprice.json'):
+    api = requests.get(url)
+    json = api.json()
+    print(json.keys())
 
-
-
-
+get_api('https://api.coindesk.com/v1/bpi/currentprice.json')
