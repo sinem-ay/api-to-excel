@@ -1,57 +1,51 @@
+import xlsxwriter
 import json
 import requests
 
-# Get request and status check
-def get_api(url):
-    api = requests.get(url)
-    def check_status():
-        try:
-            api.raise_for_status()
-        except requests.exceptions.HTTPError as error:
-            print(error)
+url = "https://community-open-weather-map.p.rapidapi.com/climate/month"
 
-get_api('https://api.coindesk.com/v1/bpi/currentprice.json')
+querystring = {"q": "Warsaw"}
 
-# Dictionary keys - Problem: Does not return anything
-"""api = requests.get(url)
-    json = api.json()
-    json.keys()"""
+headers = {
+    "X-RapidAPI-Host": "community-open-weather-map.p.rapidapi.com",
+    "X-RapidAPI-Key": "your-key"
+}
 
-def get_json(url):
-    api = requests.get(url)
-    json = api.json()
-
-    def dict_keys():
-        print(json.keys())
-    return dict_keys
-
-get_json('https://api.coindesk.com/v1/bpi/currentprice.json')
-
-def my_logger(function):
-    import logging
-    logging.basicConfig(filename='{}.log'.format(function.__name__), level=logging.INFO)
-
-    def wrapper(*args, **kwargs):
-        logging.info('Ran with args:{}, and kwargs: {}'.format(args, kwargs))
-        return function(*args, **kwargs)
-
-    return wrapper()
-
-def my_timer(function):
-    import time
-
-    def wrapper(*args, **kwargs):
-        t1=time.time()
-        result=function(*args, **kwargs)
-        t2=time.time() - t1
-        print('{} ran in: {} sec'.format(function.__name__, t2))
-        return result
+response = requests.request("GET", url, headers=headers, params=querystring)
+json_api = json.loads(response.text)
 
 
-@my_timer
-def get_api(url='https://api.coindesk.com/v1/bpi/currentprice.json'):
-    api = requests.get(url)
-    json = api.json()
-    print(json.keys())
+def float_to_str(json_data: dict):
+    if isinstance(json_data, list):
+        iterator = enumerate(json_data)
+    elif isinstance(json_data, dict):
+        iterator = json_data.items()
+    else:
+        raise TypeError("needs input of list or dict")
 
-get_api('https://api.coindesk.com/v1/bpi/currentprice.json')
+    for i, value in iterator:
+        if isinstance(value, (list, dict)):
+            float_to_str(value)
+        elif isinstance(value, float):
+            try:
+                json_data[i] = str(value)
+            except ValueError:
+                pass
+
+
+float_to_str(json_api)
+
+excel_weather = xlsxwriter.Workbook('excel_weather.xlsx')
+excel_sheet = excel_weather.add_worksheet()
+
+row = 0
+column = 0
+
+for key in json_api.keys():
+    row += 1
+    excel_sheet.write(row, column, json.dumps(key))
+    for item in json_api[key]:
+        excel_sheet.write(row, column, json.dumps(item))
+        row += 1
+
+excel_weather.close()
